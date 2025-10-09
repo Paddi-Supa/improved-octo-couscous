@@ -1,7 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Or import * as SecureStore from 'expo-secure-store';
 import { SplashScreen, Stack } from 'expo-router';
+import * as SecureStore from 'expo-secure-store'; // ✅ added
+import { onAuthStateChanged } from 'firebase/auth'; // ✅ added
 import React, { useEffect, useState } from 'react';
+import Animation from '../components/Animation'; // Restoring the Animation component import
 import OnboardingScreen from '../components/OnboardingScreen';
+import { auth } from '../firebaseConfig'; // ✅ added
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -9,18 +13,27 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
   const [appIsReady, setAppIsReady] = useState(false);
+  const [animationFinished, setAnimationFinished] = useState(false);
+  const [userUID, setUserUID] = useState<string | null>(null); // ✅ added
 
   useEffect(() => {
     async function prepare() {
       try {
         // Load custom fonts, make any API calls you need to do here
-        // For example, simulate a font load
         await new Promise(resolve => setTimeout(resolve, 100)); // Simulate loading time
 
         const onboardedStatus = await AsyncStorage.getItem('hasOnboarded');
-        // If using SecureStore:
-        // const onboardedStatus = await SecureStore.getItemAsync('hasOnboarded');
         setHasOnboarded(onboardedStatus === 'true');
+
+        // ✅ Check stored UID (SecureStore)
+        const storedUID = await SecureStore.getItemAsync('userUID');
+        setUserUID(storedUID);
+
+        // ✅ Also listen to Firebase auth state changes
+        onAuthStateChanged(auth, (user) => {
+          if (user) setUserUID(user.uid);
+          else setUserUID(null);
+        });
       } catch (e) {
         console.warn(e);
       } finally {
@@ -32,22 +45,41 @@ export default function RootLayout() {
     prepare();
   }, []);
 
+  const handleAnimationFinish = () => {
+    setAnimationFinished(true);
+  };
+
   const handleFinishOnboarding = () => {
+    AsyncStorage.setItem('hasOnboarded', 'true');
     setHasOnboarded(true);
   };
 
   if (!appIsReady || hasOnboarded === null) {
-    return null; // Keep splash screen visible
+    return null; // Keep splash screen visible while we check onboarding status
+  }
+
+  if (!animationFinished) {
+    return <Animation onAnimationFinish={handleAnimationFinish} />;
   }
 
   if (!hasOnboarded) {
     return <OnboardingScreen onFinish={handleFinishOnboarding} />;
   }
 
+  // ✅ If user not logged in → go to sign-in screen
+  if (!userUID) {
+    return (
+      <Stack>
+        <Stack.Screen name="(auth)/LoginScreen" options={{ headerShown: false }} />
+      </Stack>
+    );
+  }
+
+  // ✅ If logged in → go to main tabs
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      {/* You can define other routes here as well */}
+      
     </Stack>
   );
 }
