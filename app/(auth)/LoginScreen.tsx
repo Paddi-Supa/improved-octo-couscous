@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import {
   Alert,
@@ -14,13 +14,14 @@ import {
 import { auth } from "../../firebaseConfig";
 
 export default function SignUpScreen() {
+  const [username, setUsername] = useState(""); // 🆕 new state for username
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
   const router = useRouter();
 
   const handleSignUp = async () => {
-    if (!email || !password) {
+    if (!username || !email || !password) {
       Alert.alert("Error", "Please fill all fields");
       return;
     }
@@ -33,10 +34,16 @@ export default function SignUpScreen() {
       );
       const user = userCredential.user;
 
-      // store user UID securely
-      await SecureStore.setItemAsync("userUID", user.uid);
+      // 🆕 Set username in Firebase profile
+      await updateProfile(user, {
+        displayName: username,
+      });
 
-      Alert.alert("Account Created", "Welcome aboard!");
+      // 🆕 Store UID and username securely
+      await SecureStore.setItemAsync("userUID", user.uid);
+      await SecureStore.setItemAsync("username", username);
+
+      Alert.alert("Account Created", `Welcome aboard, ${username}!`);
       router.replace("/marketplace");
     } catch (error: any) {
       Alert.alert("Sign Up Failed", error.message);
@@ -46,6 +53,17 @@ export default function SignUpScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create an account</Text>
+
+      {/* 🆕 Username Input */}
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Choose a username"
+          value={username}
+          onChangeText={setUsername}
+          style={styles.input}
+          placeholderTextColor="#aaa"
+        />
+      </View>
 
       <View style={styles.inputContainer}>
         <TextInput
