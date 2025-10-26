@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useRef, useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
 const { width } = Dimensions.get('window');
@@ -46,6 +46,20 @@ const slides = [
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const pagerRef = useRef<PagerView>(null);
+  // Animated values per slide for subtle scale + fade effect
+  const animValsRef = useRef<Animated.Value[]>(slides.map((s, i) => new Animated.Value(i === 0 ? 1 : 0.9)));
+
+  useEffect(() => {
+    const animations: Animated.CompositeAnimation[] = slides.map((_, i) => {
+      const toValue = i === currentPage ? 1 : 0.9;
+      return Animated.timing(animValsRef.current[i], {
+        toValue,
+        duration: 300,
+        useNativeDriver: true,
+      });
+    });
+    Animated.parallel(animations).start();
+  }, [currentPage]);
 
   const handlePageScroll = (e: any) => {
     setCurrentPage(e.nativeEvent.position);
@@ -98,18 +112,25 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
         ref={pagerRef}
         onPageSelected={handlePageScroll}
       >
-        {slides.map((slide) => (
-          <View key={slide.key} style={styles.page}>
-            <View style={styles.imageBox}>
-                <Image source={slide.image} style={styles.illustration} resizeMode="contain" />
-            </View>
+        {slides.map((slide, idx) => {
+          const anim = animValsRef.current[idx];
+          const scale = anim;
+          const opacity = anim.interpolate({ inputRange: [0.9, 1], outputRange: [0.85, 1] });
+          return (
+            <View key={slide.key} style={styles.page}>
+              <View style={styles.imageBox}>
+                <Animated.View style={[styles.animatedWrapper, { transform: [{ scale }], opacity }]}> 
+                  <Image source={slide.image} style={styles.illustration} resizeMode="contain" />
+                </Animated.View>
+              </View>
 
-            <View style={styles.textContainer}>
-              <Text style={styles.title}>{slide.title}</Text>
-              <Text style={styles.subtitle}>{slide.subtitle}</Text>
+              <View style={styles.textContainer}>
+                <Text style={styles.title}>{slide.title}</Text>
+                <Text style={styles.subtitle}>{slide.subtitle}</Text>
+              </View>
             </View>
-          </View>
-        ))}
+          )
+        })}
       </PagerView>
 
   
@@ -133,108 +154,120 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#500343ff', // Light gray background for a clean look
+    backgroundColor: '#6d045b', // brand purple base
+    paddingTop: -17,
   },
   pagerView: {
     flex: 1,
+
   },
   page: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 18,
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   // New Styles for Illustrations
   imageBox: {
-    width: width * 1.0,
-    height: width * 1.0, // Make the image area square
+    width: width * 0.86,
+    height: width * 0.86,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 70,
+    marginBottom: 17,
+    marginTop: 160,
     backgroundColor: '#fff', // White background for the image box
-    borderRadius: 85,
+    borderRadius: 24,
     shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1.9,
-    shadowRadius: 1,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
     elevation: 8, // Android shadow
   },
   illustration: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
+  },
+  animatedWrapper: {
+    width: '96%',
+    height: '96%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // ---
   textContainer: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 28,
     alignItems: 'center',
+    marginTop: 4,
   },
   title: {
-    fontSize: 40, // As requested
-    fontWeight: 'bold',
-    color: '#ffffffff',
+    fontSize: 35,
+    fontWeight: '700',
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 20,
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    marginBottom: 12,
+    letterSpacing: 0.2,
   },
   subtitle: {
-    fontSize: 17, // As requested
-    color: '#ffffffff',
+    fontSize: 15,
+    fontWeight: 'thin',
+    color: '#F3EAF0',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.25)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    lineHeight: 22,
   },
   // Pagination & Nav
   bottomNav: {
     position: 'absolute',
-    bottom: 0,
-    width: '100%',
+    bottom: 18,
+    left: 16,
+    right: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-    backgroundColor: '#fff', // White bottom bar
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    elevation: 5, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF', // white pill
+    borderRadius: 999,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
   },
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     flex: 1,
+    paddingHorizontal: 8,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 4,
+    width: 9,
+    height: 9,
+    borderRadius: 6,
+    marginHorizontal: 6,
+    backgroundColor: '#E0E0E0',
   },
   skipButton: {
-    minWidth: 80,
-    padding: 10,
+    minWidth: 70,
+    padding: 8,
   },
   skipButtonText: {
-    color: '#999',
-    fontSize: 16,
+    color: '#6d045b',
+    fontSize: 14,
+    fontWeight: '600',
   },
   nextButton: {
-    minWidth: 100,
+    minWidth: 110,
     paddingVertical: 12,
-    paddingHorizontal: 25,
+    paddingHorizontal: 22,
     backgroundColor: '#E74C3C', // A nice vibrant red
-    borderRadius: 30,
+    borderRadius: 28,
     alignItems: 'center',
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
 

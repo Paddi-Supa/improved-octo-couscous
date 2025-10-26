@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import {
   Alert,
@@ -14,10 +14,12 @@ import {
 import { auth } from "../../firebaseConfig";
 
 export default function SignUpScreen() {
+  const [isLogin, setIsLogin] = useState(false);
   const [username, setUsername] = useState(""); // 🆕 new state for username
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignUp = async () => {
@@ -26,6 +28,7 @@ export default function SignUpScreen() {
       return;
     }
 
+    setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -46,24 +49,53 @@ export default function SignUpScreen() {
       Alert.alert("Account Created", `Welcome aboard, ${username}!`);
       router.replace("/marketplace");
     } catch (error: any) {
-      Alert.alert("Sign Up Failed", error.message);
+      Alert.alert("Sign Up Failed", error.message || String(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save UID and displayName if present
+      await SecureStore.setItemAsync("userUID", user.uid);
+      if (user.displayName) {
+        await SecureStore.setItemAsync("username", user.displayName);
+      }
+
+      router.replace("/marketplace");
+    } catch (error: any) {
+      Alert.alert("Login Failed", error.message || String(error));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create an account</Text>
+      <Text style={styles.title}>{isLogin ? 'Login' : 'Create an account'}</Text>
 
-      {/* 🆕 Username Input */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Choose a username"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-          placeholderTextColor="#aaa"
-        />
-      </View>
+      {/* Username only for sign up */}
+      {!isLogin && (
+        <View style={styles.inputContainer}>
+          <TextInput
+            placeholder="Choose a username"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.input}
+            placeholderTextColor="#aaa"
+          />
+        </View>
+      )}
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -73,6 +105,7 @@ export default function SignUpScreen() {
           style={styles.input}
           placeholderTextColor="#aaa"
           keyboardType="email-address"
+          autoCapitalize="none"
         />
       </View>
 
@@ -101,8 +134,21 @@ export default function SignUpScreen() {
         <Text style={styles.recoveryText}>Recovery Password</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Continue</Text>
+      <TouchableOpacity
+        style={[styles.button, loading ? { opacity: 0.7 } : null]}
+        onPress={isLogin ? handleLogin : handleSignUp}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>{isLogin ? 'Login' : 'Continue'}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{ marginTop: 16, alignSelf: 'center' }}
+        onPress={() => setIsLogin(!isLogin)}
+      >
+        <Text style={{ color: '#6C63FF' }}>
+          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+        </Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,11 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import TabIconWithBadge from '../components/TabIconWithBadge';
 
 export default function TabLayout() {
+  // IconWithBadge moved to a reusable component (TabIconWithBadge)
+
   return (
     <Tabs screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: 'blue',
+      tabBarActiveTintColor: 'purple',
       tabBarStyle: {
         height: 70,
         paddingTop: 10, // Add padding to push content down
@@ -18,6 +22,7 @@ export default function TabLayout() {
             tabBarIcon:({color}) => <Ionicons name="home" size={24} color={color} />
           }}
         />
+        {/* Chats moved into Community screen - removed standalone Chats tab */}
         <Tabs.Screen 
           name="hustle" 
           options={{
@@ -36,7 +41,7 @@ export default function TabLayout() {
           name="community" 
           options={{
             tabBarLabel: 'Community',
-            tabBarIcon:({color}) => <Ionicons name="people-circle-outline" size={24} color={color} />
+            tabBarIcon:({color}) => <TabIconWithBadge name="people-circle-outline" color={color} />
           }}
         />
         <Tabs.Screen 
@@ -49,3 +54,23 @@ export default function TabLayout() {
     </Tabs>
   )
 }
+
+const styles = StyleSheet.create({
+  tabBadge: {
+    position: 'absolute',
+    top: 2,
+    right: -2,
+    width: 12,
+    height: 12,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  tabDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    borderWidth: 1,
+    borderColor: '#fff'
+  }
+});

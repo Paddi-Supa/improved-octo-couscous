@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Wallets: document id is the user's uid (walletId)
+    match /wallets/{walletId} {
+      // owner can read their wallet
+      allow get, list: if request.auth != null && request.auth.uid == walletId;
+
+      // create only if authenticated and creating for self, and balance is a number
+      // completedTasks may be provided as an array of task ids (optional)
+      allow create: if request.auth != null
+        && request.auth.uid == walletId
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.balance is number
+        && (request.resource.data.completedTasks == null || request.resource.data.completedTasks is list);
+
+      // update only if owner and userId does not change
+      // allow updating completedTasks as a list (client-side record of completed task ids)
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.balance is number
+        && (request.resource.data.completedTasks == null || request.resource.data.completedTasks is list);
+
+      // no client-side deletes
+      allow delete: if false;
+    }
+
+    // Completed tasks: users create a record that they've completed a task
+    match /completedTasks/{docId} {
+      // allow create if authenticated, document contains userId equal to auth uid and taskId is a string
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.taskId is string
+        && (request.resource.data.screenshotUrl is string || request.resource.data.screenshotUrl == null);
+
+      // allow read only to the owner
+      allow get, list: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // no client updates/deletes
+      allow update, delete: if false;
+    }
+
+    // Fallback: deny everything else by default
+  }
+}

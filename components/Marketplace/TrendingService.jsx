@@ -31,7 +31,7 @@ export default function TrendingServices() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("ProductDetail", { productId: item.id })}
+      onPress={() => navigation.navigate("ProductDetail", { productId: item.id, type: 'service' })}
       activeOpacity={0.85}
     >
       <Image source={{ uri: item.image }} style={styles.image} />

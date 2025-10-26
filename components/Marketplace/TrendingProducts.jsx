@@ -114,13 +114,13 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   name: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "700",
     color: "#000000ff",
   },
   price: {
-    fontSize: 18,
-    color: "#f50cbaff",
+    fontSize: 13,
+    color: "#6c63ff",
     marginTop: 4,
     fontWeight: "700",
   },

@@ -1,25 +1,25 @@
 // CategoryScreen.jsx
 import { useNavigation } from "@react-navigation/native";
 import {
-  collection,
-  getDocs,
-  getFirestore,
-  limit,
-  orderBy,
-  query,
-  where,
+    collection,
+    getDocs,
+    getFirestore,
+    limit,
+    orderBy,
+    query,
+    where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Image,
-  TextInput as RNTextInput,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    FlatList,
+    Image,
+    TextInput as RNTextInput,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,7 +27,7 @@ const { width } = Dimensions.get("window");
 const CARD_GAP = 12;
 const CARD_WIDTH = Math.round((width - 48 - CARD_GAP) / 2); // two cards per row with paddings and gap
 
-export default function CategoryScreen() {
+export default function CategoryScreen({ route }: any) {
   const navigation: any = useNavigation();
   const db = getFirestore();
 
@@ -51,14 +51,17 @@ export default function CategoryScreen() {
   const [searchText, setSearchText] = useState("");
   const [items, setItems] = useState<any[]>([]); // merged items (products/services)
   const [loading, setLoading] = useState(false);
+  const initialQuery = route?.params?.searchQuery ?? null;
 
   useEffect(() => {
     let mounted = true;
 
-    const fetchForAll = async () => {
-      // fetch latest 12 products + latest 12 services and merge (product + service)
-      const prodQ = query(collection(db, "products"), orderBy("timestamp", "desc"), limit(12));
-      const servQ = query(collection(db, "services"), orderBy("timestamp", "desc"), limit(12));
+    const fetchForAll = async (bigger = false) => {
+      // fetch latest products + latest services and merge (product + service)
+      // when triggered from Header search we request a larger set to increase match chance
+      const limitCount = bigger ? 100 : 12;
+      const prodQ = query(collection(db, "products"), orderBy("timestamp", "desc"), limit(limitCount));
+      const servQ = query(collection(db, "services"), orderBy("timestamp", "desc"), limit(limitCount));
       const [prodSnap, servSnap] = await Promise.all([getDocs(prodQ), getDocs(servQ)]);
       const prodList = prodSnap.docs.map((d) => ({ id: d.id, __type: "product", ...d.data() }));
       const servList = servSnap.docs.map((d) => ({ id: d.id, __type: "service", ...d.data() }));
@@ -104,7 +107,8 @@ export default function CategoryScreen() {
       try {
         let list = [];
         if (selected === "all") {
-          list = await fetchForAll();
+          // if the screen was opened with an initial search query, fetch a larger set
+          list = await fetchForAll(Boolean(initialQuery));
         } else if (selected === "black_friday") {
           // static fallback behavior: try to fetch flagged BF products; if none, show latest products
           const bfQ = query(collection(db, "products"), where("isBlackFriday", "==", true), orderBy("timestamp", "desc"), limit(24));
@@ -136,7 +140,16 @@ export default function CategoryScreen() {
     return () => {
       mounted = false;
     };
-  }, [selected, db]);
+  }, [selected, db, initialQuery]);
+
+  // if there is an initial search query passed from Header, open search and set text
+  useEffect(() => {
+    if (initialQuery) {
+      setSelected('all');
+      setSearchOpen(true);
+      setSearchText(initialQuery);
+    }
+  }, [initialQuery]);
 
   const filtered = items.filter((it: any) => {
     if (!searchText) return true;
