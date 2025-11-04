@@ -27,6 +27,10 @@ export default function ProductListScreen() {
   // Form state
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
+  const [useDiscount, setUseDiscount] = useState(false);
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [discountPrice, setDiscountPrice] = useState("");
+  const [discountEnd, setDiscountEnd] = useState("");
   const [condition, setCondition] = useState("New");
   const [category, setCategory] = useState("Books & academics");
   const [description, setDescription] = useState("");
@@ -137,18 +141,24 @@ export default function ProductListScreen() {
   // main submit handler
   const handleSubmit = async () => {
     // validation (now includes accountNumber & bankName)
+    // Validation: require price or discounted prices
     if (
       !productName.trim() ||
-      !price.trim() ||
+      (!useDiscount && !price.trim()) ||
+      (useDiscount && (!originalPrice.trim() || !discountPrice.trim() || !discountEnd.trim())) ||
       !description.trim() ||
       !accountNumber.trim() ||
       !bankName.trim()
     ) {
       Alert.alert(
         "Validation Error",
-        "Please fill all required fields (Product name, price, description and account details)."
+        "Please fill all required fields (Product name, price/discounts, description and account details)."
       );
       return;
+    }
+    if (useDiscount && isNaN(Date.parse(discountEnd))) {
+      Alert.alert('Invalid date', 'Please enter a valid discount end date in YYYY-MM-DD format.')
+      return
     }
     if (!images[0] || !images[1]) {
       Alert.alert(
@@ -197,7 +207,13 @@ export default function ProductListScreen() {
       const productDoc = {
         sellerId: uid,
         productName: productName.trim(),
-        price: Number(price),
+        // if discounted, store discounted price as main price, but keep originalPrice and discountPrice explicitly
+        price: Number(useDiscount ? discountPrice : price),
+        isDiscounted: useDiscount,
+        originalPrice: useDiscount ? Number(originalPrice) : null,
+  discountPrice: useDiscount ? Number(discountPrice) : null,
+  // discountEnd stored as milliseconds since epoch (number) for easy querying and rendering
+  discountEnd: useDiscount ? (isNaN(Date.parse(discountEnd)) ? null : Date.parse(discountEnd)) : null,
         condition,
         category,
         description: description.trim(),
@@ -249,6 +265,8 @@ export default function ProductListScreen() {
             value={accountNumber}
             onChangeText={(t) => setAccountNumber(t.replace(/[^0-9]/g, ""))}
             style={styles.input}
+            contentStyle={{ color: '#000' }}
+            theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
           />
 
           {/* NEW: Bank Name */}
@@ -258,6 +276,8 @@ export default function ProductListScreen() {
             value={bankName}
             onChangeText={setBankName}
             style={styles.input}
+            contentStyle={{ color: '#000' }}
+            theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
           />
 
           <TextInput
@@ -266,16 +286,61 @@ export default function ProductListScreen() {
             value={productName}
             onChangeText={setProductName}
             style={styles.input}
+            contentStyle={{ color: '#000' }}
+            theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
           />
 
-          <TextInput
-            label="Price *"
-            mode="outlined"
-            keyboardType="numeric"
-            value={price}
-            onChangeText={(t) => setPrice(t.replace(/[^0-9.]/g, ""))}
-            style={styles.input}
-          />
+          {/* Price input OR Discount fields */}
+          {!useDiscount ? (
+            <TextInput
+              label="Price *"
+              mode="outlined"
+              keyboardType="numeric"
+              value={price}
+              onChangeText={(t) => setPrice(t.replace(/[^0-9.]/g, ""))}
+              style={styles.input}
+              contentStyle={{ color: '#000' }}
+              theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
+            />
+          ) : (
+            <>
+              <TextInput
+                label="Original Price *"
+                mode="outlined"
+                keyboardType="numeric"
+                value={originalPrice}
+                onChangeText={(t) => setOriginalPrice(t.replace(/[^0-9.]/g, ""))}
+                style={styles.input}
+                contentStyle={{ color: '#000' }}
+                theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
+              />
+              <TextInput
+                label="Discounted Price *"
+                mode="outlined"
+                keyboardType="numeric"
+                value={discountPrice}
+                onChangeText={(t) => setDiscountPrice(t.replace(/[^0-9.]/g, ""))}
+                style={styles.input}
+                contentStyle={{ color: '#000' }}
+                theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
+              />
+              <TextInput
+                label="Discount end date (YYYY-MM-DD) *"
+                mode="outlined"
+                value={discountEnd}
+                onChangeText={(t) => setDiscountEnd(t)}
+                placeholder="2025-11-12"
+                style={styles.input}
+                contentStyle={{ color: '#000' }}
+                theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
+              />
+            </>
+          )}
+
+          <View style={styles.rowDiscount}>
+            <Text style={styles.labelText}>Set price discount</Text>
+            <Switch value={useDiscount} onValueChange={(v) => setUseDiscount(v)} />
+          </View>
 
           {/* Condition dropdown */}
           <View style={styles.row}>
@@ -337,6 +402,7 @@ export default function ProductListScreen() {
             multiline
             numberOfLines={4}
             style={[styles.input, { height: 110 }]}
+            theme={{ colors: { text: '#000000ff', placeholder: '#000000ff', primary: '#6501B5' } }}
           />
 
           {/* Images (2) */}
@@ -361,9 +427,11 @@ export default function ProductListScreen() {
                   </>
                 ) : (
                   <Button
-                    mode="outlined"
+                    mode="contained"
                     onPress={() => pickImage(i)}
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", backgroundColor: '#6501B5' }}
+                    labelStyle={{ color: '#fff', fontWeight: '700' }}
+                    contentStyle={{ paddingVertical: 6 }}
                   >
                     Select Image {i + 1}
                   </Button>
@@ -378,11 +446,12 @@ export default function ProductListScreen() {
             value={campusPickup}
             onChangeText={setCampusPickup}
             style={styles.input}
+            theme={{ colors: { text: '#000', placeholder: '#000000ff', primary: '#6501B5' } }}
           />
 
           <View style={styles.rowSpace}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text>Negotiable</Text>
+            <View style={{ flexDirection: "row", alignItems: "center"}}>
+                <Text style={styles.labelText}>Negotiable</Text>
               <Switch
                 value={negotiable}
                 onValueChange={() => setNegotiable((v) => !v)}
@@ -394,6 +463,9 @@ export default function ProductListScreen() {
               onPress={handleSubmit}
               loading={uploading}
               disabled={uploading}
+              style={{ backgroundColor: '#6501B5' }}
+              labelStyle={{ color: '#fff', fontWeight: '700' }}
+              contentStyle={{ paddingVertical: 6 }}
             >
               {uploading ? "Uploading..." : "Upload Product"}
             </Button>
@@ -427,8 +499,10 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     backgroundColor: "#fff",
   },
-  title: { fontSize: 18, fontWeight: "700", marginBottom: 14 },
+  title: { fontSize: 18, fontWeight: "700", marginBottom: 14, color: "#050000ff" },
   input: { marginBottom: 12, backgroundColor: "#fff" },
+  rowDiscount: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  labelText: { color: '#000' },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -442,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minWidth: 160,
   },
-  menuAnchorText: { color: "#333" },
+  menuAnchorText: { color: "#000000ff" },
   subLabel: { marginBottom: 8, fontWeight: "600" },
   imageRow: {
     flexDirection: "row",
@@ -479,5 +553,5 @@ const styles = StyleSheet.create({
     maxWidth: 420,
   },
   successText: { fontSize: 18, fontWeight: "800", marginBottom: 6 },
-  successSub: { color: "#666" },
+  successSub: { color: "#000000ff" },
 });

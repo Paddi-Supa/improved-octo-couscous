@@ -9,9 +9,9 @@ export default function TabLayout() {
   return (
     <Tabs screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: 'purple',
+      tabBarActiveTintColor: '#6501B5',
       tabBarStyle: {
-        height: 70,
+        height: 90,
         paddingTop: 10, // Add padding to push content down
       }
     }}>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#EF4444',
+    backgroundColor: '#f11010ff',
     borderWidth: 1,
     borderColor: '#fff'
   }

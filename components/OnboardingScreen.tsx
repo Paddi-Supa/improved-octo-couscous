@@ -154,7 +154,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#6d045b', // brand purple base
+    backgroundColor: '#6501B5', // brand purple base
     paddingTop: -17,
   },
   pagerView: {

@@ -31,24 +31,24 @@ export default function QuickAccess() {
 
   // Re-introducing the hardcoded titles and routes
   const TITLES = [
-    "80% Off Deals",
-    "Earn While You Shop",
-    "Top Rated Picks",
     "Flash Sales",
-    "New Arrivals",
-    "Hot Phones",
-    "Groceries",
+    "Earn While You Shop",
+    "Become A Delivery Partner",
+    "Top Services",
+    "Send Packages Securely",
+    "Electronics",
+    "Foods & Snacks",
     "Fashion Deals",
   ];
 
   const ROUTES = [
+    "FlashSales",
+    "PaddiBoosters",
+    "DeliveryPartners",
     "CategoryScreen",
     "CategoryScreen",
     "CategoryScreen",
     "CategoryScreen",
-    "ChatScreen",
-    "SellerProfile",
-    "ProductDetail",
     "CategoryScreen",
   ];
 
@@ -88,11 +88,27 @@ export default function QuickAccess() {
   const handlePress = (index: number) => {
     // Use the index to find the correct route from the local array
     const routeName = ROUTES[index] || ROUTES[0];
+    // Try local navigator first. If the route isn't registered here, try the parent navigator.
     try {
       navigation.navigate(routeName);
+      return;
     } catch (err) {
-      console.warn("Navigation failed:", err);
+      console.warn("QuickAccess: local navigation failed for", routeName, err);
     }
+
+    const parent = navigation.getParent && navigation.getParent();
+    if (parent) {
+      try {
+        parent.navigate(routeName);
+        return;
+      } catch (err) {
+        console.warn("QuickAccess: parent navigation also failed for", routeName, err);
+      }
+    }
+
+    // Final fallback: log helpful message. If you still see 'not handled by any navigator',
+    // the route name likely isn't registered at any level of the navigation tree.
+    console.warn(`QuickAccess: unable to navigate to '${routeName}'. Ensure a screen with this name is registered in the navigator.`);
   };
 
   if (loading) {

@@ -1,7 +1,7 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, getFirestore } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -12,7 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function ProductDetailsScreen() {
@@ -30,9 +30,9 @@ export default function ProductDetailsScreen() {
 
   // Reviews & Ratings
   const [userRating, setUserRating] = useState(0);
-  const [userReview, setUserReview] = useState("");
   const [reviews, setReviews] = useState<any[]>([]);
   const [averageRating, setAverageRating] = useState(0);
+  // (review input will be rendered in header)
 
   useEffect(() => {
     fetchDetails();
@@ -92,20 +92,21 @@ export default function ProductDetailsScreen() {
     }
   };
 
-  const submitReview = async () => {
-    if (userRating === 0 || userReview.trim() === "") return;
+  // submitReview accepts the review text to avoid lifting text state into parent
+  const submitReview = async (reviewText: string) => {
+    if (userRating === 0 || !reviewText || reviewText.trim() === "") return;
 
     const newReview = {
       productId: id,
       rating: userRating,
-      review: userReview.trim(),
+      review: reviewText.trim(),
       timestamp: new Date(),
     };
 
     try {
       await addDoc(collection(db, "reviews"), newReview);
       setUserRating(0);
-      setUserReview("");
+      // fetch updated reviews
       fetchReviews();
     } catch (e) {
       console.log("Error submitting review:", e);
@@ -130,6 +131,25 @@ export default function ProductDetailsScreen() {
     }
     return <View style={{ flexDirection: "row", marginVertical: 6 }}>{stars}</View>;
   };
+
+  // Memoized child component to manage review text locally and avoid parent re-renders
+  const ReviewInput = memo(({ onSubmit }: { onSubmit: (text: string) => void }) => {
+    const [text, setText] = useState("");
+    return (
+      <View>
+        <TextInput
+          style={styles.reviewInput}
+          placeholder="Write your review..."
+          multiline
+          value={text}
+          onChangeText={setText}
+        />
+        <TouchableOpacity style={styles.submitReviewBtn} onPress={() => { onSubmit(text); setText(""); }}>
+          <Text style={styles.submitReviewText}>Submit Review</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  })
 
   // Render stars for average rating (supports half stars)
   const renderAverageStars = () => {
@@ -263,16 +283,7 @@ export default function ProductDetailsScreen() {
       {/* Reviews Section */}
       <Text style={styles.sectionTitle}>Reviews & Ratings</Text>
       {renderUserStarRating()}
-      <TextInput
-        style={styles.reviewInput}
-        placeholder="Write your review..."
-        multiline
-        value={userReview}
-        onChangeText={setUserReview}
-      />
-      <TouchableOpacity style={styles.submitReviewBtn} onPress={submitReview}>
-        <Text style={styles.submitReviewText}>Submit Review</Text>
-      </TouchableOpacity>
+      <ReviewInput onSubmit={submitReview} />
 
       {reviews.length === 0 && (
         <Text style={{ marginTop: 6, color: "#777" }}>No reviews yet</Text>
@@ -297,10 +308,15 @@ export default function ProductDetailsScreen() {
       <FlatList
         data={reviews}
         renderItem={renderReview}
-        keyExtractor={(item) => (item?.id ? String(item.id) : Math.random().toString())}
+        keyExtractor={(item, index) => (item?.id ? String(item.id) : String(index))}
         ListHeaderComponent={ListHeaderComponent}
+        keyboardShouldPersistTaps="always"
+        keyboardDismissMode="none"
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 140 }}
       />
+
+      {/* review input moved back to header */}
 
       {/* Payment Modal */}
       <Modal visible={showPaymentModal} transparent animationType="slide">
@@ -520,5 +536,28 @@ const styles = StyleSheet.create({
   sellerSub: {
     fontSize: 12,
     color: "#666",
+  },
+  reviewFooter: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 14,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+  reviewInputFooter: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 48,
+    maxHeight: 140,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
   },
 });

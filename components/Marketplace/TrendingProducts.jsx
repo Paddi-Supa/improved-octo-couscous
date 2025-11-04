@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     marginBottom: 8,
-    marginTop: -12,
+    marginTop: -58,
   },
   header: {
     fontSize: 18,

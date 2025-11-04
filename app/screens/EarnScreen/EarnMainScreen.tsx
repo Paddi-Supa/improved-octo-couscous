@@ -41,7 +41,7 @@ const EarnMainScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#6d045b', // purple base
+    backgroundColor: '#6501B5', // purple base
   },
   backgroundImage: {
     flex: 1,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(109,4,91,0.22)'
+    backgroundColor: 'rgba(34, 3, 29, 0)'
   },
   cardWrap: {
     width: '86%',
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     marginBottom: 18
   },
   proceedButton: {
-    backgroundColor: '#6d045b',
+    backgroundColor: '#6501B5',
     paddingVertical: 12,
     paddingHorizontal: 28,
     borderRadius: 12,

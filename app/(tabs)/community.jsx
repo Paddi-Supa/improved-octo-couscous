@@ -24,13 +24,13 @@ function TabsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>PADDI</Text>
+        <Text style={styles.headerText}>PADDI SUPA</Text>
       </View>
 
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: { backgroundColor: '#fff' },
-          tabBarIndicatorStyle: { backgroundColor: '#6C5CE7', height: 3 },
+          tabBarIndicatorStyle: { backgroundColor: '#6501B5', height: 3 },
           tabBarLabelStyle: { fontWeight: '600' },
         }}
       >
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', marginTop: 30 },
 
   header: {
-    backgroundColor: '#6C5CE7',
+    backgroundColor: '#6501B5',
     paddingVertical: 16,
     borderBottomLeftRadius: 1,
     borderBottomRightRadius: 1,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 28,
     right: 24,
-    backgroundColor: '#6C5CE7',
+    backgroundColor: '#6501B5',
     width: 58,
     height: 58,
     borderRadius: 30,

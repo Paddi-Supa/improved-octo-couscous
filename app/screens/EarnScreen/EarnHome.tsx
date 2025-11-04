@@ -380,58 +380,86 @@ const EarnHome = () => {
             showsVerticalScrollIndicator={false}
           />
         )}
+        
+        {/* Coming soon: Game Zone */}
+        <View style={styles.comingCard}>
+          <View style={styles.comingIconWrap}>
+            <Text style={styles.comingIcon}>🎮</Text>
+          </View>
+          <View style={styles.comingContent}>
+            <Text style={styles.comingTitle}>Game Zone — Coming soon</Text>
+            <Text style={styles.comingSubtitle}>Game Zone coming soon where you can play and earn.</Text>
+          </View>
+        </View>
+
+        {/* Coming soon: Creative Hub Feed */}
+        <View style={styles.comingCard}>
+          <View style={styles.comingIconWrap}>
+            <Text style={styles.comingIcon}>🎨</Text>
+          </View>
+          <View style={styles.comingContent}>
+            <Text style={styles.comingTitle}>Creative Hub — Coming soon</Text>
+            <Text style={styles.comingSubtitle}>Where you can post content, exhibit your creative talent and get paid for it.</Text>
+          </View>
+        </View>
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF', padding: 16 },
-  headerRow: { marginTop: 8, marginBottom: 16 },
+  container: { flex: 1, backgroundColor: '#F6F7FB', padding: 16 },
+  headerRow: { marginTop: 8, marginBottom: 18 },
   profileWrap: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#eee' },
-  username: { fontSize: 16, fontWeight: '700' },
-  small: { color: '#666' },
+  avatar: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#eee' },
+  username: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+  small: { color: '#6B7280' },
   walletCard: {
-    backgroundColor: '#6d045b',
-    borderRadius: 18,
-    padding: 24,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 18,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     // subtle elevation for both platforms
     shadowColor: '#000',
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 12,
-    elevation: 6,
-    minHeight: 160,
-    justifyContent: 'center'
+    elevation: 4,
+    minHeight: 140,
+    justifyContent: 'center',
+    overflow: 'hidden'
   },
-  walletBgImage: { borderRadius: 18, resizeMode: 'cover' },
-  walletOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(109,4,91,0.45)', borderRadius: 18 },
-  walletCardContent: { alignItems: 'center', paddingHorizontal: 6 },
-  walletLabel: { color: '#fff', opacity: 0.9 },
-  walletAmount: { color: '#fff', fontSize: 28, fontWeight: '800', marginTop: 6 },
+  walletBgImage: { borderRadius: 16, resizeMode: 'cover' },
+  walletOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(76,29,149,0.18)', borderRadius: 16 },
+  walletCardContent: { alignItems: 'flex-start', paddingHorizontal: 6 },
+  walletLabel: { color: '#F3E8FF', opacity: 0.95, fontWeight: '600' },
+  walletAmount: { color: '#fff', fontSize: 32, fontWeight: '900', marginTop: 6 },
   withdrawBtn: { marginTop: 12, backgroundColor: '#fff', paddingVertical: 8, paddingHorizontal: 18, borderRadius: 10 },
-  withdrawText: { color: '#6d045b', fontWeight: '700' },
+  withdrawText: { color: '#4C1D95', fontWeight: '800' },
   tasksWrap: { flex: 1 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 8 },
-  taskCard: { flexDirection: 'row', padding: 12, borderRadius: 10, backgroundColor: '#fff', marginBottom: 12, elevation: 2, shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 } },
-  taskImage: { width: 88, height: 88, borderRadius: 10, backgroundColor: '#f0f0f0' },
-  taskImagePlaceholder: { width: 88, height: 88, borderRadius: 10, backgroundColor: '#f5f5f7', borderWidth: 1, borderColor: '#eee' },
-  taskContent: { flex: 1, paddingLeft: 12, justifyContent: 'center' },
+  sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 12, color: '#0F172A' },
+  taskCard: { flexDirection: 'row', padding: 14, borderRadius: 14, backgroundColor: '#fff', marginBottom: 14, elevation: 3, shadowColor: '#000', shadowOpacity: 0.06, shadowOffset: { width: 0, height: 3 } },
+  taskImage: { width: 96, height: 96, borderRadius: 10, backgroundColor: '#f0f0f0' },
+  taskImagePlaceholder: { width: 96, height: 96, borderRadius: 10, backgroundColor: '#f5f5f7', borderWidth: 1, borderColor: '#eee' },
+  taskContent: { flex: 1, paddingLeft: 14, justifyContent: 'center' },
   taskTitle: { fontWeight: '800', fontSize: 16, color: '#0f172a' },
-  taskDescription: { marginTop: 6, color: '#667085', fontSize: 13 },
-  taskReward: { marginTop: 6, color: '#0B84FF', fontWeight: '700' },
-  rewardBadge: { backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(11,132,255,0.12)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
-  rewardText: { color: '#0B84FF', fontWeight: '800' },
-  taskActions: { flexDirection: 'row', marginTop: 10 },
-  openBtn: { backgroundColor: '#0B84FF', padding: 8, borderRadius: 8, marginRight: 8 },
-  openText: { color: '#fff', fontWeight: '700' },
-  submitBtn: { borderWidth: 1, borderColor: '#6d045b', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#fff' },
-  submitText: { color: '#6d045b', fontWeight: '700' },
-  disabledBtn: { opacity: 0.5, backgroundColor: '#7aaef7' },
+  taskDescription: { marginTop: 6, color: '#6B7280', fontSize: 13 },
+  taskReward: { marginTop: 6, color: '#10B981', fontWeight: '700' },
+  rewardBadge: { backgroundColor: '#F2E9FF', borderWidth: 1, borderColor: '#E6D8FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
+  rewardText: { color: '#4C1D95', fontWeight: '800' },
+  taskActions: { flexDirection: 'row', marginTop: 12, alignItems: 'center' },
+  openBtn: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#6d045b', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, marginRight: 10 },
+  openText: { color: '#6d045b', fontWeight: '700' },
+  submitBtn: { backgroundColor: '#6d045b', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
+  submitText: { color: '#fff', fontWeight: '700' },
+  disabledBtn: { opacity: 0.6 },
   completedBadge: { backgroundColor: '#10B981', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  comingCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, backgroundColor: '#fff', marginTop: 12, elevation: 2, shadowColor: '#000', shadowOpacity: 0.04, shadowOffset: { width: 0, height: 4 } },
+  comingIconWrap: { width: 54, height: 54, borderRadius: 10, backgroundColor: 'rgba(76,29,149,0.06)', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  comingIcon: { fontSize: 24 },
+  comingContent: { flex: 1 },
+  comingTitle: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+  comingSubtitle: { color: '#6B7280', marginTop: 6, fontSize: 13 },
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' }
 })
 

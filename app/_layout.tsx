@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import Animation from '../components/Animation'; // Restoring the Animation component import
 import OnboardingScreen from '../components/OnboardingScreen';
 import { auth } from '../firebaseConfig'; // ✅ added
+// notifications removed per user request
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,6 +35,8 @@ export default function RootLayout() {
           if (user) setUserUID(user.uid);
           else setUserUID(null);
         });
+      
+        // notifications integration removed for now
       } catch (e) {
         console.warn(e);
       } finally {
@@ -53,6 +56,8 @@ export default function RootLayout() {
     AsyncStorage.setItem('hasOnboarded', 'true');
     setHasOnboarded(true);
   };
+
+  // notifications removed — no listeners registered here
 
   if (!appIsReady || hasOnboarded === null) {
     return null; // Keep splash screen visible while we check onboarding status

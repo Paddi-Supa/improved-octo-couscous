@@ -36,9 +36,9 @@ export default function MainCategorySection() {
   const routes = [
     "CategoryScreen",
     "CategoryScreen",
-    "ChatScreen",
-    "SellerProfile",
-    "ProductDetail",
+    "CategoryScreen",
+    "CategoryScreen",
+    "CategoryScreen",
     "CategoryScreen",
     "CategoryScreen",
     "CategoryScreen",

@@ -19,7 +19,6 @@ import {
   Checkbox,
   TextInput,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // ⭐️ NEW IMPORT: Supabase client from your utils folder
 import { supabase } from "../../../utils/supabaseClient";
@@ -44,6 +43,7 @@ export default function HustlemainScreen() {
     idImage: null,
     profileImage: null,
     address: "",
+    location: "",
     agree: false,
   });
 
@@ -155,6 +155,7 @@ export default function HustlemainScreen() {
       idImage,
       profileImage,
       address,
+      location,
       agree,
     } = formData;
 
@@ -165,7 +166,8 @@ export default function HustlemainScreen() {
       !phoneNumber ||
       !idImage ||
       !profileImage ||
-      !address
+      !address ||
+      !location
     ) {
       Alert.alert("Error", "Please fill all fields and upload both images.");
       return;
@@ -203,6 +205,7 @@ export default function HustlemainScreen() {
         businessName,
         phoneNumber,
         address,
+        location: formData.location,
         idImage: idImageUrl, // Storing the Supabase URL
         profileImage: profileImageUrl, // Storing the Supabase URL
         verified: false, // Initial status is unverified/pending review
@@ -240,7 +243,7 @@ export default function HustlemainScreen() {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#108834ff" }}>
+    <View style={{ flex: 1, backgroundColor: "#6501B5" }}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.header}>
           BECOME A VERIFIED SELLER OR SERVICE PROVIDER
@@ -254,7 +257,7 @@ export default function HustlemainScreen() {
         </View>
 
         <Text style={styles.instructions}>
-          Follow the instructions listed below and become verified to reach your potential buyers.
+          Follow the instructions listed below to become verified to reach your potential buyers.
         </Text>
 
         <TextInput
@@ -288,15 +291,23 @@ export default function HustlemainScreen() {
           style={styles.input}
         />
         <TextInput
-          label="Address / Mobile"
+          label="Hostel Address"
           mode="outlined"
           value={formData.address}
           onChangeText={(t) => handleTextChange("address", t)}
           style={styles.input}
         />
 
+        <TextInput
+          label="Location (Based on your campus/university location)"
+          mode="outlined"
+          value={formData.location}
+          onChangeText={(t) => handleTextChange("location", t)}
+          style={styles.input}
+        />
+
         <Text style={styles.uploadInstruction}>
-          Upload an image or screenshot that can identify you as a student (e.g., lecture timetable, receipt, mail screenshot, or your picture)
+          Upload an image or screenshot that can identify you as a student (e.g., lecture timetable, receipt, mail screenshot, course outline or your picture)
         </Text>
         <View style={styles.uploadBox}>
           <TouchableOpacity
@@ -311,7 +322,7 @@ export default function HustlemainScreen() {
         </View>
 
         <Text style={[styles.uploadInstruction, { marginTop: 6 }]}>
-          Upload a picture you want to use as your seller profile image
+          Upload a picture you want to use as your business profile image
         </Text>
         <View style={styles.uploadBox}>
           <TouchableOpacity
@@ -329,6 +340,8 @@ export default function HustlemainScreen() {
           <Checkbox
             status={formData.agree ? "checked" : "unchecked"}
             onPress={() => setFormData((p) => ({ ...p, agree: !p.agree }))}
+            color="#ffffff"
+            uncheckedColor="#ffffff"
           />
           <Text style={styles.checkboxText}>
             I acknowledge to provide the best, be truthful, and not do any malicious things.
@@ -345,18 +358,18 @@ export default function HustlemainScreen() {
           {uploading ? "Submitting..." : "Get Verified"}
         </Button>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, alignItems: "center", backgroundColor: "#108834ff" },
+  container: { padding: 20, alignItems: "center", backgroundColor: "#6501B5" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "800",
-    marginBottom: 14,
+    marginBottom: 5,
     color: "white",
   },
   circleWrap: {
@@ -391,13 +404,13 @@ const styles = StyleSheet.create({
   uploadTouchable: { paddingVertical: 8 },
   uploadText: { color: "#fff", fontWeight: "600" },
   preview: { width: 110, height: 110, borderRadius: 8, marginTop: 8 },
-  checkboxRow: { flexDirection: "row", alignItems: "center", marginVertical: 12, width: "100%" },
+  checkboxRow: { flexDirection: "row", alignItems: "center", marginVertical: 12, width: "100%", color: "white" },
   checkboxText: { marginLeft: 8, flex: 1, fontSize: 13, color: "white" },
   button: {
     marginTop: 8,
     width: "100%",
     borderRadius: 8,
     paddingVertical: 6,
-    backgroundColor: "purple",
+    backgroundColor: "orange",
   },
 });

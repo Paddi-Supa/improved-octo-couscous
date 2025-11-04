@@ -264,39 +264,44 @@ export default function ChatScreen() {
         </View>
       </View>
 
-      {/* Messages List */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={renderMessage}
-        contentContainerStyle={styles.messagesList}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-      />
-
-      {/* Message Input */}
+      {/* Messages List + Input wrapped so KeyboardAvoidingView can move both */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
-        style={styles.inputContainer}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 80}
+        style={{ flex: 1 }}
       >
-        <TextInput
-          style={styles.input}
-          value={newMessage}
-          onChangeText={setNewMessage}
-          placeholder="Type a message..."
-          multiline
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          renderItem={renderMessage}
+          contentContainerStyle={styles.messagesList}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         />
-        <TouchableOpacity 
-          style={[
-            styles.sendButton,
-            !newMessage.trim() && styles.sendButtonDisabled
-          ]}
-          onPress={sendMessage}
-          disabled={!newMessage.trim()}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
+
+        {/* Message Input (fixed at bottom of KeyboardAvoidingView) */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={newMessage}
+            onChangeText={setNewMessage}
+            placeholder="Type a message..."
+            multiline
+            onFocus={() => setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 120)}
+          />
+          <TouchableOpacity 
+            style={[
+              styles.sendButton,
+              !newMessage.trim() && styles.sendButtonDisabled
+            ]}
+            onPress={sendMessage}
+            disabled={!newMessage.trim()}
+          >
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -351,6 +356,7 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     padding: 10,
+    paddingBottom: 140,
   },
   messageContainer: {
     maxWidth: '80%',
