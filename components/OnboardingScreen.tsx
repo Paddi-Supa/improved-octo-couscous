@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -48,6 +49,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
   const pagerRef = useRef<PagerView>(null);
   // Animated values per slide for subtle scale + fade effect
   const animValsRef = useRef<Animated.Value[]>(slides.map((s, i) => new Animated.Value(i === 0 ? 1 : 0.9)));
+  const router = useRouter();
 
   useEffect(() => {
     const animations: Animated.CompositeAnimation[] = slides.map((_, i) => {
@@ -83,8 +85,14 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
       // Sets the flag so the user doesn't see this screen again
       await SecureStore.setItemAsync('hasOnboarded', 'true');
       // Navigate to the Sign-in screen
-      
+      console.log('[Onboarding] finished — calling onFinish');
       onFinish();
+      // Explicitly navigate to the Login screen so we don't rely solely on stored flags
+      try {
+        router.replace('/(auth)/LoginScreen');
+      } catch (navErr) {
+        console.warn('Failed to navigate to login from onboarding:', navErr);
+      }
     } catch (error) {
       console.error('Error setting onboarding flag:', error);
     }
