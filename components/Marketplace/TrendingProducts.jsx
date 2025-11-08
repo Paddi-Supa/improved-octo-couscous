@@ -10,6 +10,49 @@ export default function TrendingProducts() {
   const navigation = useNavigation();
   const db = getFirestore();
 
+  // helper: robustly extract a readable location string from various possible shapes
+  const extractString = (v) => {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'string') return v;
+    if (typeof v === 'number') return String(v);
+    if (typeof v === 'object') {
+      return v.campus || v.name || v.label || v.address || v.location || v.value || v.title || null;
+    }
+    return null;
+  };
+
+  const getLocation = (item) => {
+    if (!item) return '';
+    const candidates = [
+      item.campus,
+      item.campusPickup,
+      item['campus_pickup'],
+      item.campuspickup,
+      item.location,
+      item.sellerLocation,
+      item.sellerCampus,
+      item.address,
+      item.pickup,
+      item.pickupLocation,
+      item.pickup_campus,
+    ];
+    for (const c of candidates) {
+      const s = extractString(c);
+      if (s) return s;
+    }
+    const nested = [item.seller, item.sellerInfo, item.user];
+    for (const n of nested) {
+      if (!n) continue;
+      const s = extractString(n.campus) || extractString(n.campusPickup) || extractString(n.location) || extractString(n.address) || extractString(n.pickup);
+      if (s) return s;
+      if (n.pickup) {
+        const sp = extractString(n.pickup.campus) || extractString(n.pickup.location) || extractString(n.pickup.name);
+        if (sp) return sp;
+      }
+    }
+    return '';
+  };
+
   useEffect(() => {
     let mounted = true;
     const fetchProducts = async () => {
@@ -38,6 +81,7 @@ export default function TrendingProducts() {
           {item.productName}
         </Text>
         <Text style={styles.price}>₦{item.price}</Text>
+  <Text style={styles.location} numberOfLines={1}>📍 {getLocation(item)}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -123,5 +167,10 @@ const styles = StyleSheet.create({
     color: "#6c63ff",
     marginTop: 4,
     fontWeight: "700",
+  },
+  location: {
+    fontSize: 12,
+    color: '#000000ff',
+    marginTop: 2,
   },
 });

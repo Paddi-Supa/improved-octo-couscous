@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getAuth } from "firebase/auth";
 import { addDoc, collection, getFirestore, serverTimestamp } from "firebase/firestore";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -48,6 +48,8 @@ export default function ServiceListScreen() {
 
   const [uploading, setUploading] = useState(false);
   const [successVisible, setSuccessVisible] = useState(false);
+
+  const scrollRef = useRef<ScrollView | null>(null)
 
   const PRICE_TYPES = ["Fixed", "Negotiable"];
   const SERVICE_TYPES = ["Home Service", "Mobile"];
@@ -141,7 +143,7 @@ export default function ServiceListScreen() {
         serviceType,
         description: description.trim(),
         availability,
-        location: location.trim() || null,
+        location: location.trim(),
         negotiable,
         image: imageUrl,
         bankName: bankName.trim(),
@@ -158,15 +160,38 @@ export default function ServiceListScreen() {
     }
   };
 
+  const resetForm = () => {
+    setServiceTitle("")
+    setPriceType("Fixed")
+    setPrice("")
+    setServiceType("Home Service")
+    setDescription("")
+    setAvailability("24/7")
+    setLocation("")
+    setNegotiable(false)
+    setAccountNumber("")
+    setBankName("")
+    setImage(null)
+    setPriceMenuVisible(false)
+    setTypeMenuVisible(false)
+    setAvailMenuVisible(false)
+    setCategoryMenuVisible(false)
+    setCategory("Services")
+    if (scrollRef.current && (scrollRef.current as any).scrollTo) {
+      try { (scrollRef.current as any).scrollTo({ y: 0, animated: true }) } catch (e) { }
+    }
+  }
+
   const onSuccessTap = () => {
     setSuccessVisible(false);
+    resetForm()
     navigation.navigate("HustleDashboard", { initialTab: "service" });
   };
 
   return (
     <View style={styles.safeArea}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.container}>
+  <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
           <Text style={styles.title}>Add a Service</Text>
 
           <TextInput
@@ -318,7 +343,7 @@ export default function ServiceListScreen() {
             </Menu>
 
             <TextInput
-              label="Location (optional)"
+              label="Campus Location"
               mode="outlined"
               value={location}
               onChangeText={setLocation}

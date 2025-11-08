@@ -12,8 +12,8 @@ const FollowingScreen = () => {
         <Text style={styles.emoji}>✨</Text>
         <Text style={styles.title}>Following</Text>
         <Text style={styles.subtitle}>
-          We're cooking up something fabulous — a personalized feed just for the people you follow.
-          It'll be hotter than your coffee and sassier than your comments. Stay tuned!
+          We&apos;re cooking up something fabulous — a personalized feed just for the people you follow.
+          It&apos;ll be hotter than your coffee and sassier than your comments. Stay tuned!
         </Text>
 
         <TouchableOpacity

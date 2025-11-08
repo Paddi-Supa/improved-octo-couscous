@@ -11,7 +11,7 @@ export default function TabLayout() {
       headerShown: false,
       tabBarActiveTintColor: '#6501B5',
       tabBarStyle: {
-        height: 90,
+        height: 120,
         paddingTop: 10, // Add padding to push content down
       }
     }}>

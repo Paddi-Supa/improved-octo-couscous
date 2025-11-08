@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getAuth } from "firebase/auth";
 import { addDoc, collection, getFirestore, serverTimestamp } from "firebase/firestore";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -51,6 +51,8 @@ export default function ProductListScreen() {
   // uploading / modal
   const [uploading, setUploading] = useState(false);
   const [successVisible, setSuccessVisible] = useState(false);
+
+  const scrollRef = useRef<ScrollView | null>(null)
 
   // categories + conditions (as requested)
   const CONDITIONS = ["New", "Used", "Fairly Used"];
@@ -218,7 +220,7 @@ export default function ProductListScreen() {
         category,
         description: description.trim(),
         images: [url1, url2],
-        campusPickup: campusPickup.trim() || null,
+        campusPickup: campusPickup.trim(),
         negotiable,
         accountNumber: accountNumber.trim(),
         bankName: bankName.trim(),
@@ -240,11 +242,34 @@ export default function ProductListScreen() {
     }
   };
 
-  // after success tap: close modal and navigate back to marketplace
+  // reset the form to initial values
+  const resetForm = () => {
+    setProductName("")
+    setPrice("")
+    setUseDiscount(false)
+    setOriginalPrice("")
+    setDiscountPrice("")
+    setDiscountEnd("")
+    setCondition("New")
+    setCategory("Books & academics")
+    setDescription("")
+    setCampusPickup("")
+    setNegotiable(false)
+    setAccountNumber("")
+    setBankName("")
+    setImages([null, null])
+    setCondMenuVisible(false)
+    setCatMenuVisible(false)
+    // scroll to top
+    if (scrollRef.current && (scrollRef.current as any).scrollTo) {
+      try { (scrollRef.current as any).scrollTo({ y: 0, animated: true }) } catch (e) { /* ignore */ }
+    }
+  }
+
+  // after success tap: reset form, close modal and navigate back to marketplace
   const onSuccessTap = () => {
     setSuccessVisible(false);
-    // Navigate to the parent dashboard and ensure the 'product' tab is active.
-    // This assumes the parent component can receive params to set the active tab.
+    resetForm()
     // @ts-ignore
     navigation.navigate("HustleDashboard", {
       initialTab: "product",
@@ -254,7 +279,7 @@ export default function ProductListScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <ScrollView contentContainerStyle={styles.container}>
+  <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
           <Text style={styles.title}>Add a product</Text>
 
           {/* NEW: Account Number */}
@@ -441,7 +466,7 @@ export default function ProductListScreen() {
           </View>
 
           <TextInput
-            label="Campus pickup (optional)"
+            label="Campus Location"
             mode="outlined"
             value={campusPickup}
             onChangeText={setCampusPickup}

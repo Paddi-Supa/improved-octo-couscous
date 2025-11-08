@@ -80,7 +80,7 @@ const WalletProfile = () => {
       } catch (txErr: any) {
         if (txErr?.message === 'INSUFFICIENT') {
           // per your request, show warning popup
-          Alert.alert('Be careful', 'Be careful, next time you will be banned')
+          Alert.alert('Caution', 'Please fill in a valid amount within your wallet balance.')
           setLoading(false)
           return
         }
@@ -113,6 +113,11 @@ const WalletProfile = () => {
         <Text style={styles.warningText}>
           Be advised: using a different account number or bank may lead to the termination of your account. Any fraudulent activity will result in account loss if detected.
         </Text>
+
+        <View style={styles.instructionsWrap}>
+          <Text style={styles.instructionItem}>• Please ensure you fill the field below in this format:</Text>
+          <Text style={styles.instructionExample}>Username, accountnumber bankname, amount</Text>
+        </View>
         <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} />
         <TextInput style={styles.input} placeholder="Account number" keyboardType="numeric" value={accountNumber} onChangeText={setAccountNumber} />
         <TextInput style={styles.input} placeholder="Bank name" value={bankName} onChangeText={setBankName} />
@@ -137,6 +142,9 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#eee', padding: 12, borderRadius: 8, marginBottom: 12, width: '100%' },
   submitBtn: { backgroundColor: '#6d045b', padding: 12, borderRadius: 10, alignItems: 'center', width: '100%' },
   submitText: { color: '#fff', fontWeight: '700' },
+  instructionsWrap: { marginBottom: 12, backgroundColor: '#FFF7ED', padding: 10, borderRadius: 8 },
+  instructionItem: { color: '#92400E', fontSize: 13, marginBottom: 6 },
+  instructionExample: { color: '#4B5563', fontSize: 13, fontWeight: '700' },
   warningText: { color: '#b21f2d', fontSize: 12, marginBottom: 12, lineHeight: 18, textAlign: 'left', backgroundColor: 'rgba(178,31,45,0.04)', padding: 8, borderRadius: 6 }
   ,loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' }
 })

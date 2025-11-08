@@ -35,7 +35,7 @@ export default function PaddiBoosters() {
   const imgHeight = Math.round(imgWidth * 0.56);
 
   const handleJoin = async () => {
-    const url = 'https://chat.whatsapp.com/J01TkOJy6FWExMbhBTREul?mode=wwt';
+    const url = 'https://tinyurl.com/4nx3he6w';
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) await Linking.openURL(url);
@@ -71,7 +71,7 @@ export default function PaddiBoosters() {
 
               <View style={styles.ctaRow}>
                 <Pressable style={styles.primaryCta} onPress={handleJoin} accessibilityRole="button">
-                  <Text style={styles.primaryCtaText}>🚀 Join Paddi Boosters</Text>
+                  <Text style={styles.primaryCtaText}>🚀 Coming Soon Join The Wait-List</Text>
                 </Pressable>
 
                 <Pressable
@@ -156,7 +156,7 @@ export default function PaddiBoosters() {
         {/* FAQ */}
         <View style={styles.sectionAlt}>
           <Text style={styles.sectionTitle}>Frequently asked questions</Text>
-          <FaqItem q="How do I get paid?" a="Payouts are scheduled monthly and you can receive funds via bank transfer or mobile money where supported." />
+          <FaqItem q="How do I get paid?" a="Payouts are scheduled weekly and you can receive funds via bank transfer or mobile money where supported." />
           <FaqItem q="Is there a joining fee?" a="No — joining Paddi Boosters is free. You only need to register and start sharing." />
           <FaqItem q="Can I promote anywhere?" a="Yes. You can promote via social media, WhatsApp groups, or private messages using your referral links." />
         </View>

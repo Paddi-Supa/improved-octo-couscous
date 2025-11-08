@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {
-    Alert,
-    ImageBackground,
-    Linking,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
+  Alert,
+  ImageBackground,
+  Linking,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
 } from 'react-native';
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -31,7 +31,7 @@ export default function DeliveryPartners() {
   const imgHeight = Math.round(imgWidth * 0.56)
 
   const handleJoin = async () => {
-    const url = 'https://wa.link/0935w4'
+    const url = 'https://tinyurl.com/35v2vb5k'
     try {
       const supported = await Linking.canOpenURL(url)
       if (supported) await Linking.openURL(url)
@@ -66,7 +66,7 @@ export default function DeliveryPartners() {
 
             <View style={styles.ctaRow}>
               <Pressable style={styles.primaryCta} onPress={handleJoin} accessibilityRole="button">
-                <Text style={styles.primaryCtaText}>🚚 Join as a Delivery Partner</Text>
+                <Text style={styles.primaryCtaText}>🚚 Coming Soon 🚚</Text>
               </Pressable>
 
               <Pressable

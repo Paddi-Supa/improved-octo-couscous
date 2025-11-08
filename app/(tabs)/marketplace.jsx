@@ -11,11 +11,12 @@ import {
   Linking,
   Modal,
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { db } from '../../firebaseConfig';
 
@@ -31,6 +32,8 @@ import Slider from '../../components/Marketplace/Slider';
 import TopSellers from '../../components/Marketplace/TopSellers';
 import TrendingProducts from '../../components/Marketplace/TrendingProducts';
 import TrendingService from '../../components/Marketplace/TrendingService';
+import BadgeScreen from '../screens/HustleScreen/BadgeScreen';
+
 
 // The 5 new screens you want to navigate to
 import CategoryScreen from '../screens/MarketplaceScreen/CategoryScreen';
@@ -61,38 +64,53 @@ const MarketplaceHome = () => {
   const [adModalVisible, setAdModalVisible] = useState(false)
   const [activeAd, setActiveAd] = useState(null)
 
+  const [refreshing, setRefreshing] = useState(false)
+
+  // fetch ads (extracted so we can call it on pull-to-refresh)
+  const fetchAds = useCallback(async () => {
+    try {
+      const snap = await getDocs(collection(db, 'ads'))
+      const list = []
+      snap.forEach(d => {
+        const data = d.data() || {}
+        const looksLikeAd = obj => obj && (obj.image || obj.imageUrl || obj.img || obj.title || obj.headline || obj.link || typeof obj === 'string')
+        if (looksLikeAd(data)) list.push(data)
+        Object.values(data).forEach(v => {
+          if (Array.isArray(v)) v.forEach(item => list.push(item))
+          else if (typeof v === 'object' && looksLikeAd(v)) list.push(v)
+        })
+      })
+      console.log('Ads loaded from firestore, candidate count:', list.length)
+      if (list.length === 0) {
+        // still update ads state to empty in case we're refreshing
+        setAds([])
+        return
+      }
+      setAds(list)
+      await maybeShowAd(list)
+    } catch (e) {
+      console.warn('Failed to load ads', e)
+    }
+  }, [maybeShowAd])
+
   useEffect(() => {
     let mounted = true
-    const initAds = async () => {
-      try {
-        // load ads from Firestore 'ads' collection
-        const snap = await getDocs(collection(db, 'ads'))
-        const list = []
-        snap.forEach(d => {
-          const data = d.data() || {}
-          // If the document itself is an ad object, accept it
-          const looksLikeAd = obj => obj && (obj.image || obj.imageUrl || obj.img || obj.title || obj.headline || obj.link || typeof obj === 'string')
-          if (looksLikeAd(data)) list.push(data)
-          // collect any array fields (flexible schema) and object fields that look like ads
-          Object.values(data).forEach(v => {
-            if (Array.isArray(v)) v.forEach(item => list.push(item))
-            else if (typeof v === 'object' && looksLikeAd(v)) list.push(v)
-          })
-        })
-        console.log('Ads loaded from firestore, candidate count:', list.length)
-        if (!mounted) return
-        if (list.length === 0) return
-        setAds(list)
-
-        // after ads loaded, attempt to show if time passed
-        await maybeShowAd(list)
-      } catch (e) {
-        console.warn('Failed to load ads', e)
-      }
-    }
-    initAds()
+    // call fetchAds and ignore the result if unmounted
+    fetchAds().catch(e => { if (mounted) console.warn('fetchAds error', e) })
     return () => { mounted = false }
-  }, [])
+  }, [fetchAds])
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true)
+      await fetchAds()
+    } catch (e) {
+      console.warn('Refresh failed', e)
+    } finally {
+      // brief delay so refresh animation is visible even if load is very quick
+      setTimeout(() => setRefreshing(false), 400)
+    }
+  }, [fetchAds])
 
   // normalize helper (handles string URLs and nested media objects)
   const normalize = (a) => {
@@ -159,6 +177,7 @@ const MarketplaceHome = () => {
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Header */}
         <Header />
@@ -318,6 +337,7 @@ const MarketplaceNavigator = () => {
       <MarketplaceStack.Screen name="FlashSales" component={FlashSales} />
       <MarketplaceStack.Screen name="PaddiBoosters" component={PaddiBoosters} />
       <MarketplaceStack.Screen name="DeliveryPartners" component={DeliveryPartners} />
+      <MarketplaceStack.Screen name="BadgeScreen" component={BadgeScreen} />
 
 
       {/* Register the other 4 screens you can navigate to */}

@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
 const { width } = Dimensions.get('window');
@@ -81,7 +81,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
   const handleFinishOnboarding = async () => {
     try {
       // Sets the flag so the user doesn't see this screen again
-      await AsyncStorage.setItem('hasOnboarded', 'true');
+      await SecureStore.setItemAsync('hasOnboarded', 'true');
       // Navigate to the Sign-in screen
       
       onFinish();
@@ -97,7 +97,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
           key={index}
           style={[
             styles.dot,
-            { backgroundColor: index === currentPage ? '#E74C3C' : '#BDC3C7' }, // Using red for active, gray for inactive
+            { backgroundColor: index === currentPage ? '#6501b5' : '#BDC3C7' }, // Using red for active, gray for inactive
           ]}
         />
       ))}
@@ -218,21 +218,24 @@ const styles = StyleSheet.create({
   // Pagination & Nav
   bottomNav: {
     position: 'absolute',
-    bottom: 18,
-    left: 16,
-    right: 16,
+  // raise a bit more to avoid overlapping device gesture bar / nav
+  // increased from previous values to give extra clearance
+  bottom: Platform.OS === 'ios' ? 64 : 54,
+    left: 18,
+    right: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    minHeight: 72,
     backgroundColor: '#FFFFFF', // white pill
-    borderRadius: 999,
-    elevation: 6,
+    borderRadius: 40,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 14,
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -241,33 +244,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 6,
-    marginHorizontal: 6,
+    width: 11,
+    height: 11,
+    borderRadius: 7,
+    marginHorizontal: 8,
     backgroundColor: '#E0E0E0',
   },
   skipButton: {
-    minWidth: 70,
-    padding: 8,
+    minWidth: 80,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   skipButtonText: {
     color: '#6d045b',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
   },
   nextButton: {
-    minWidth: 110,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
-    backgroundColor: '#E74C3C', // A nice vibrant red
-    borderRadius: 28,
+    minWidth: 126,
+    paddingVertical: 14,
+    paddingHorizontal: 26,
+    backgroundColor: '#6501b5',
+    borderRadius: 30,
     alignItems: 'center',
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
   },
 });
 

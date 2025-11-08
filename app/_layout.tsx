@@ -1,6 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Or import * as SecureStore from 'expo-secure-store';
 import { SplashScreen, Stack } from 'expo-router';
-import * as SecureStore from 'expo-secure-store'; // ✅ added
+import * as SecureStore from 'expo-secure-store'; // use SecureStore instead of AsyncStorage
 import { onAuthStateChanged } from 'firebase/auth'; // ✅ added
 import React, { useEffect, useState } from 'react';
 import Animation from '../components/Animation'; // Restoring the Animation component import
@@ -23,8 +22,8 @@ export default function RootLayout() {
         // Load custom fonts, make any API calls you need to do here
         await new Promise(resolve => setTimeout(resolve, 100)); // Simulate loading time
 
-        const onboardedStatus = await AsyncStorage.getItem('hasOnboarded');
-        setHasOnboarded(onboardedStatus === 'true');
+  const onboardedStatus = await SecureStore.getItemAsync('hasOnboarded');
+  setHasOnboarded(onboardedStatus === 'true');
 
         // ✅ Check stored UID (SecureStore)
         const storedUID = await SecureStore.getItemAsync('userUID');
@@ -52,8 +51,8 @@ export default function RootLayout() {
     setAnimationFinished(true);
   };
 
-  const handleFinishOnboarding = () => {
-    AsyncStorage.setItem('hasOnboarded', 'true');
+  const handleFinishOnboarding = async () => {
+    await SecureStore.setItemAsync('hasOnboarded', 'true');
     setHasOnboarded(true);
   };
 

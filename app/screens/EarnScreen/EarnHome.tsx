@@ -23,6 +23,7 @@ const EarnHome = () => {
   const [tasks, setTasks] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
+  const [openedIds, setOpenedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     loadAll()
@@ -118,8 +119,15 @@ const EarnHome = () => {
     try {
       if (!task?.url) return Alert.alert('No URL', 'This task does not have a URL to open')
       const supported = await Linking.canOpenURL(task.url)
-      if (supported) await Linking.openURL(task.url)
-      else Alert.alert('Cannot open link', task.url)
+      if (supported) {
+        await Linking.openURL(task.url)
+        // mark as opened so the Submit Proof button becomes active
+        setOpenedIds((prev) => {
+          const next = new Set(prev)
+          next.add(task.id)
+          return next
+        })
+      } else Alert.alert('Cannot open link', task.url)
     } catch (e) {
       console.warn('Failed to open task url', e)
       Alert.alert('Error', 'Failed to open task URL')
@@ -322,8 +330,8 @@ const EarnHome = () => {
             <Text style={styles.openText}>{completedIds.has(item.id) ? 'Completed' : 'Open'}</Text>
           </TouchableOpacity>
           {!completedIds.has(item.id) ? (
-            <TouchableOpacity style={styles.submitBtn} onPress={() => pickAndUploadProof(item)}>
-              <Text style={styles.submitText}>Submit Proof</Text>
+            <TouchableOpacity style={[styles.submitBtn, !openedIds.has(item.id) && styles.submitDisabled]} onPress={() => pickAndUploadProof(item)} disabled={!openedIds.has(item.id)}>
+              <Text style={[styles.submitText, !openedIds.has(item.id) && styles.submitTextDisabled]}>Submit Proof</Text>
             </TouchableOpacity>
           ) : (
             <View style={[styles.completedBadge]}>
@@ -452,6 +460,8 @@ const styles = StyleSheet.create({
   openText: { color: '#6d045b', fontWeight: '700' },
   submitBtn: { backgroundColor: '#6d045b', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8 },
   submitText: { color: '#fff', fontWeight: '700' },
+  submitDisabled: { backgroundColor: '#D1D5DB' /* gray */ },
+  submitTextDisabled: { color: '#6B7280' },
   disabledBtn: { opacity: 0.6 },
   completedBadge: { backgroundColor: '#10B981', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   comingCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, backgroundColor: '#fff', marginTop: 12, elevation: 2, shadowColor: '#000', shadowOpacity: 0.04, shadowOffset: { width: 0, height: 4 } },

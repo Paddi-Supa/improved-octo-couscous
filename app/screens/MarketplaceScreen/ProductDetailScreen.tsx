@@ -3,16 +3,16 @@ import { getAuth } from "firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, getFirestore } from "firebase/firestore";
 import React, { memo, useEffect, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Image,
-  Linking,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Image,
+    Linking,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 export default function ProductDetailsScreen() {
@@ -133,7 +133,7 @@ export default function ProductDetailsScreen() {
   };
 
   // Memoized child component to manage review text locally and avoid parent re-renders
-  const ReviewInput = memo(({ onSubmit }: { onSubmit: (text: string) => void }) => {
+  const InnerReviewInput = ({ onSubmit }: { onSubmit: (text: string) => void }) => {
     const [text, setText] = useState("");
     return (
       <View>
@@ -149,7 +149,9 @@ export default function ProductDetailsScreen() {
         </TouchableOpacity>
       </View>
     )
-  })
+  };
+
+  const ReviewInput = memo(InnerReviewInput);
 
   // Render stars for average rating (supports half stars)
   const renderAverageStars = () => {

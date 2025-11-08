@@ -96,6 +96,33 @@ export default function NewArrivals() {
     const title = item.productName || item.serviceTitle || item.name || item.title || "Untitled";
     const price = item.priceType === "Fixed" || item.priceType === "fixed" || item.price ? (item.price ? `₦${item.price}` : "") : (item.priceType === "Negotiable" ? "Negotiable" : "");
 
+    const getLocation = (it: any) => {
+      if (!it) return '';
+      const extract = (v: any) => {
+        if (v === null || v === undefined) return null;
+        if (typeof v === 'string') return v;
+        if (typeof v === 'number') return String(v);
+        if (typeof v === 'object') return v.campus || v.name || v.label || v.address || v.location || v.value || v.title || null;
+        return null;
+      };
+      const candidates = [it.campus, it.campusPickup, it['campus_pickup'], it.campuspickup, it.location, it.sellerLocation, it.sellerCampus, it.address, it.pickup, it.pickupLocation];
+      for (const c of candidates) {
+        const s = extract(c);
+        if (s) return s;
+      }
+      const nested = [it.seller, it.sellerInfo, it.user];
+      for (const n of nested) {
+        if (!n) continue;
+        const s = extract(n.campus) || extract(n.campusPickup) || extract(n.location) || extract(n.address) || extract(n.pickup);
+        if (s) return s;
+        if (n.pickup) {
+          const sp = extract(n.pickup.campus) || extract(n.pickup.location) || extract(n.pickup.name);
+          if (sp) return sp;
+        }
+      }
+      return '';
+    };
+
     return (
       <TouchableOpacity
         style={styles.card}
@@ -113,6 +140,7 @@ export default function NewArrivals() {
         <View style={styles.textBox}>
           <Text style={styles.name} numberOfLines={2}>{title}</Text>
           <Text style={styles.price}>{price}</Text>
+          <Text style={styles.location} numberOfLines={1}>📍 {getLocation(item)}</Text>
         </View>
 
         {/* small clothing-like tag at top-left */}
@@ -166,18 +194,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 8,
     marginRight: 10,
-    width: 150,
-    height: 200,
+    width: 160,
+    height: 220,
+    overflow: 'hidden',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
     elevation: 3,
   },
-  image: { width: "100%", height: 140, resizeMode: 'cover' },
-  textBox: { padding: 10, paddingBottom: 20 },
+  image: { width: "100%", height: 120, resizeMode: 'cover' },
+  textBox: { padding: 10, paddingBottom: 10, flex: 1, justifyContent: 'space-between' },
   name: { fontSize: 14, fontWeight: "700", color: "#222", lineHeight: 18 },
   price: { fontSize: 13, color: "#6c63ff", marginTop: 6, fontWeight: "800" },
+  location: { fontSize: 12, color: '#6B7280', marginTop: 4, overflow: 'hidden' },
   newBadge: {
     position: "absolute",
     bottom: 10,

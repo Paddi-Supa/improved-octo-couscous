@@ -35,7 +35,7 @@ const HustleDashboard = () => {
           {[
             { key: "product" as TabKey, label: "Product List" },
             { key: "service" as TabKey, label: "Service List" },
-            { key: "badges" as TabKey, label: "Paddi Badges" },
+            { key: "badges" as TabKey, label: "Request Delivery" },
             { key: "loan" as TabKey, label: "Seller's Loan" },
           ].map((tab) => (
             <TouchableOpacity

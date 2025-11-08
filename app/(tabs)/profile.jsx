@@ -1,22 +1,20 @@
 
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
-import { signOut, updateProfile } from 'firebase/auth';
+import { updateProfile } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { auth, db } from '../../firebaseConfig';
 import { supabase } from '../../utils/supabaseClient';
 
 export default function Profile() {
-  const router = useRouter();
   const user = auth.currentUser;
   const uid = user?.uid;
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [photoURL, setPhotoURL] = useState(user?.photoURL || null);
   const [uploading, setUploading] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  // logout/view-account removed per request
   const [savingUsername, setSavingUsername] = useState(false);
   const [postsCount, setPostsCount] = useState(null);
   const [listingsCount, setListingsCount] = useState(null);
@@ -160,16 +158,7 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      // navigate to login screen (replace history)
-      router.replace('/(auth)/LoginScreen');
-    } catch (e) {
-      console.error('Logout failed', e);
-      Alert.alert('Logout failed', e.message || String(e));
-    }
-  };
+  // logout removed — signOut flow intentionally removed per the change request
 
   const saveUsername = async () => {
     if (!uid) return Alert.alert('Not signed in', 'Please sign in to update your username');
@@ -209,9 +198,7 @@ export default function Profile() {
           <Text style={styles.title}>Profile</Text>
           <Text style={styles.subtitle}>Manage your account</Text>
         </View>
-        <Pressable onPress={() => router.push('/(auth)/LoginScreen')} style={styles.headerAction}>
-          <Text style={styles.headerActionText}>View account</Text>
-        </Pressable>
+        {/* View account removed intentionally */}
       </View>
 
       
@@ -282,35 +269,10 @@ export default function Profile() {
           </Pressable>
         </View>
 
-        <Pressable
-          onPress={() => setShowLogoutModal(true)}
-          style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.logoutText}>Log out</Text>
-        </Pressable>
+        {/* Log out removed per request */}
       </View>
 
-      <Modal
-        visible={showLogoutModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowLogoutModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Confirm logout</Text>
-            <Text style={styles.modalBody}>Are you sure you want to log out?</Text>
-            <View style={styles.modalButtons}>
-              <Pressable style={[styles.modalBtn, styles.modalCancel]} onPress={() => setShowLogoutModal(false)}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable style={[styles.modalBtn, styles.modalConfirm]} onPress={() => { setShowLogoutModal(false); handleLogout(); }}>
-                <Text style={styles.modalConfirmText}>Log out</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Logout confirmation modal removed */}
 
       <View style={styles.extraCard}>
         <Text style={styles.extraTitle}>Profile Tips</Text>
@@ -334,7 +296,7 @@ export default function Profile() {
         <Pressable
           style={styles.whatsappButton}
           onPress={async () => {
-            const url = 'https://whatsapp.com/channel/0029VbBm63X7T8bRWfB8UG2E'
+            const url = 'https://tinyurl.com/4pt7xwfc'
             try {
               const supported = await Linking.canOpenURL(url)
               if (supported) await Linking.openURL(url)
@@ -389,7 +351,7 @@ export default function Profile() {
         <View style={styles.youtubeRow}>
           <View style={styles.youtubeContent}>
             <Text style={styles.youtubeTitle}>Watch our YouTube channel</Text>
-            <Text style={styles.youtubeSubtitle}>Follow our videos and tutorials to get the most out of Paddi Supa.</Text>
+            <Text style={styles.youtubeSubtitle}>Watch our videos and tutorials to get the most out of Paddi Supa.</Text>
           </View>
           <Image
             source={require('../../assets/images/youtube.png')}
@@ -401,7 +363,7 @@ export default function Profile() {
         <Pressable
           style={styles.youtubeButton}
           onPress={async () => {
-            const url = 'https://www.youtube.com/channel/UCX9X7F0xbMfKFewmFaM_7rg'
+            const url = 'https://tinyurl.com/39z4wy4f'
             try {
               const supported = await Linking.canOpenURL(url)
               if (supported) await Linking.openURL(url)
@@ -432,7 +394,6 @@ const styles = StyleSheet.create({
   avatarPlaceholder: { backgroundColor: '#E6E9F2', alignItems: 'center', justifyContent: 'center' },
   avatarInitial: { fontSize: 36, color: '#374151', fontWeight: '700' },
   topRow: { flexDirection: 'row', alignItems: 'center' },
-  avatarContainer: { position: 'relative', marginRight: 14 },
   infoCol: { flex: 1 },
   name: { fontSize: 18, fontWeight: '700', color: '#0F172A', marginLeft:7 },
   email: { color: '#6B7280', marginTop: 4, marginLeft: 7 },
@@ -448,7 +409,7 @@ const styles = StyleSheet.create({
   outlineButtonText: { color: '#6501B5', fontWeight: '700' },
   logoutButton: { marginTop: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#E5E7EB', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, alignItems: 'center' },
   logoutText: { color: '#374151', fontWeight: '700' },
-  avatarContainer: { position: 'relative', marginBottom: 6 },
+  avatarContainer: { position: 'relative', marginRight: 14, marginBottom: 6 },
   avatarOverlay: { position: 'absolute', right: -6, bottom: -6, backgroundColor: '#111827', width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', elevation: 4 },
   avatarOverlayText: { color: '#fff', fontSize: 18 },
   pressed: { opacity: 0.75, transform: [{ scale: 0.995 }] },
